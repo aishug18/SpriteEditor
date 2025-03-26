@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/penIcon.png</file>
+        <file>icons/eraserIcon.png</file>
+    </qresource>
+</RCC>

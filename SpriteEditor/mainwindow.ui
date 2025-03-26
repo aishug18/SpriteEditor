@@ -44,6 +44,13 @@
       <height>61</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+QToolButton {
+background-color: rgb(255, 213, 213)
+}</string>
+    </property>
     <property name="text">
      <string>Eraser</string>
     </property>
@@ -83,7 +90,7 @@ background-color: rgb(255, 213, 213)
     <property name="styleSheet">
      <string notr="true">
 
-Qpush {
+QPushButton {
 background-color: rgb(255, 213, 213)
 }</string>
     </property>
@@ -191,12 +198,18 @@ background-color: rgb(255, 0, 127)
     <property name="styleSheet">
      <string notr="true">
 
-Qpush {
+QToolButton {
 background-color: rgb(255, 213, 213)
 }</string>
     </property>
     <property name="text">
      <string>Pen</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>55</width>
+      <height>55</height>
+     </size>
     </property>
    </widget>
    <widget class="QToolButton" name="colorDropperToolButton">
@@ -207,6 +220,13 @@ background-color: rgb(255, 213, 213)
       <width>61</width>
       <height>61</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+QToolButton {
+background-color: rgb(255, 213, 213)
+}</string>
     </property>
     <property name="text">
      <string>color
@@ -221,6 +241,13 @@ dropper</string>
       <width>61</width>
       <height>61</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+QPushButton {
+background-color: rgb(255, 213, 213)
+}</string>
     </property>
     <property name="text">
      <string>colors</string>
@@ -238,7 +265,7 @@ dropper</string>
     <property name="styleSheet">
      <string notr="true">
 
-Qpush {
+QComboBox{
 background-color: rgb(255, 213, 213)
 }</string>
     </property>

@@ -22,9 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
         ui->spriteCanvas->setShapeMode(shape); // Pass the selected shape to SpriteCanvas
     });
 
+    //ui->colorDialog.setOption(QColorDialog::ShowAlphaChannel, true);  // enable alpha channel
 
-
-
+    ui->penToolButton->setIcon(QIcon(":icons/penIcon.png"));
+    ui->eraseToggleButton->setIcon(QIcon(":icons/eraserIcon.png"));
 }
 
 MainWindow::~MainWindow()
