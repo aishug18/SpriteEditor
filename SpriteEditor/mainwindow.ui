@@ -6,12 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>804</width>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(0, 0, 0);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="SpriteCanvas" name="spriteCanvas" native="true">
@@ -19,17 +25,22 @@
      <rect>
       <x>150</x>
       <y>130</y>
-      <width>381</width>
-      <height>301</height>
+      <width>421</width>
+      <height>361</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget {
+	background-color: rgb(255, 255, 255)
+}</string>
     </property>
    </widget>
    <widget class="QToolButton" name="eraseToggleButton">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>250</y>
-      <width>71</width>
+      <y>280</y>
+      <width>61</width>
       <height>61</height>
      </rect>
     </property>
@@ -40,85 +51,47 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="savePushButton">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>100</y>
-      <width>71</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pen</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>170</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Shapes</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_3">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>320</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Temp colors</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_4">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>410</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>color picker</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_5">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
+      <x>30</x>
       <y>20</y>
       <width>83</width>
       <height>29</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+QPushButton {
+background-color: rgb(255, 213, 213)
+}</string>
     </property>
     <property name="text">
      <string>Save</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_6">
+   <widget class="QPushButton" name="loadPushButton">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>130</x>
       <y>20</y>
       <width>83</width>
       <height>29</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+Qpush {
+background-color: rgb(255, 213, 213)
+}</string>
+    </property>
     <property name="text">
      <string>Load</string>
     </property>
    </widget>
-   <widget class="QSlider" name="horizontalSlider">
+   <widget class="QSlider" name="fpsSlider">
     <property name="geometry">
      <rect>
       <x>600</x>
@@ -127,6 +100,11 @@
       <height>18</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget {
+background-color: rgb(255, 0, 127)
+}</string>
+    </property>
     <property name="orientation">
      <enum>Qt::Orientation::Horizontal</enum>
     </property>
@@ -134,14 +112,25 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>620</x>
-      <y>220</y>
-      <width>131</width>
+      <x>600</x>
+      <y>230</y>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget {
+background-color: rgb(255, 0, 127)
+}</string>
+    </property>
     <property name="text">
-     <string>frames per second</string>
+     <string>FRAMES PER SECOND</string>
     </property>
    </widget>
    <widget class="QFrame" name="frame">
@@ -153,6 +142,11 @@
       <height>131</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget {
+	background-color: rgb(255, 255, 255)
+}</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
     </property>
@@ -163,15 +157,116 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>40</y>
-      <width>131</width>
+      <x>590</x>
+      <y>30</y>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
-    <property name="text">
-     <string>animation preview</string>
+    <property name="font">
+     <font>
+      <italic>true</italic>
+      <bold>true</bold>
+      <underline>false</underline>
+     </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget {
+background-color: rgb(255, 0, 127)
+}rgb(255, 0, 127)</string>
+    </property>
+    <property name="text">
+     <string>ANIMATION PREVIEW</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="penToolButton">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>140</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+Qpush {
+background-color: rgb(255, 213, 213)
+}</string>
+    </property>
+    <property name="text">
+     <string>Pen</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="colorDropperToolButton">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>350</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>color
+dropper</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="colorPushButton">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>430</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>colors</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="shapeComboBox">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>230</y>
+      <width>101</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+Qpush {
+background-color: rgb(255, 213, 213)
+}</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>Rectangle</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Square</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Triangle</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Line</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Circle</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -179,8 +274,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>25</height>
+     <width>804</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

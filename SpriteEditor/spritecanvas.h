@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QColor>
 #include <QImage>
+#include <QPoint>
+#include <QString>
 
 class SpriteCanvas : public QWidget
 {
@@ -15,11 +17,13 @@ public:
 
     void setDrawColor(const QColor &color);
     void setEraserMode(bool enabled);
+    void setShapeMode(QString shape);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;    // for shapes
 
 private:
     static const int pixelSize = 20;
@@ -29,7 +33,12 @@ private:
     QColor drawColor;
     bool erasing;
 
+    QPoint startPoint;
+    QPoint endPoint;
+    QString currentShape;
+
     void drawAt(int x, int y);
+    void drawCircle(int centerX, int centerY, int radius);
 };
 
 #endif // SPRITECANVAS_H
