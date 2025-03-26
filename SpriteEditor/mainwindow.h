@@ -22,15 +22,9 @@ private:
     Ui::MainWindow *ui;
 
 private slots:
-    //void toggleEraseMode();
     void penMode();
     void eraseMode();
-    //void shapeMode();
     void openColorDialog();
-
-    void rectangleMode();
-    void circleMode();
-    void lineMode();
 
 };
 #endif // MAINWINDOW_H

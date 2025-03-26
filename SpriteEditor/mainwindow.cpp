@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QColorDialog>
-#include <QMenu>
-#include <QAction>
+#include <QDebug>   // for debugging, remove before submitting
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -11,21 +10,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //connect(ui->eraseToggleButton, &QToolButton::clicked, this, &MainWindow::toggleEraseMode);
-
     connect(ui->penToolButton, &QToolButton::clicked, this, &MainWindow::penMode);
     connect(ui->eraseToggleButton, &QToolButton::clicked, this, &MainWindow::eraseMode);
-    //connect(ui->shapeToolButton, &QToolButton::clicked, this, &MainWindow::shapeMode);
     connect(ui->colorPushButton, &QPushButton::clicked, this, &MainWindow::openColorDialog);
+    connect(ui->colorDropperToolButton, &QToolButton::clicked, this, [this]() {ui->spriteCanvas->setColorDropper(true);});
 
     connect(ui->shapeComboBox, &QComboBox::currentTextChanged, this, [this](const QString &shape) {
-        ui->spriteCanvas->setShapeMode(shape); // Pass the selected shape to SpriteCanvas
+            ui->spriteCanvas->setShapeMode(shape);
     });
 
-    //ui->colorDialog.setOption(QColorDialog::ShowAlphaChannel, true);  // enable alpha channel
-
-    ui->penToolButton->setIcon(QIcon(":icons/penIcon.png"));
-    ui->eraseToggleButton->setIcon(QIcon(":icons/eraserIcon.png"));
+    // find diff eraser icon
 }
 
 MainWindow::~MainWindow()
@@ -33,35 +27,26 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-// void MainWindow::toggleEraseMode()
-// {
-//     bool isErasing = ui->eraseToggleButton->isChecked();
-//     ui->spriteCanvas->setEraserMode(isErasing);
-// }
-
 void MainWindow::penMode() {
     ui->spriteCanvas->setEraserMode(false);
+    ui->spriteCanvas->setShapeMode(false);
+    ui->spriteCanvas->setColorDropper(false);
 }
 void MainWindow::eraseMode() {
     ui->spriteCanvas->setEraserMode(true);
-}
-
-void MainWindow::rectangleMode() {
-    ui->spriteCanvas->setShapeMode("Rectangle");
-}
-
-void MainWindow::circleMode() {
-    ui->spriteCanvas->setShapeMode("Circle");
-}
-
-void MainWindow::lineMode() {
-    ui->spriteCanvas->setShapeMode("Line");
+    ui->spriteCanvas->setShapeMode(false);
+    ui->spriteCanvas->setColorDropper(false);
 }
 
 void MainWindow::openColorDialog() {
-    QColor color = QColorDialog::getColor(Qt::white, this, "Select Color");
-    if (color.isValid()) {
-        ui->spriteCanvas->setDrawColor(color);
+    QColorDialog colorDialog(this);
+    colorDialog.setOption(QColorDialog::ShowAlphaChannel); // Allow alpha selection
+
+    if (colorDialog.exec() == QDialog::Accepted) {
+        QColor color = colorDialog.selectedColor();
+        if (color.isValid()) {
+            ui->spriteCanvas->setDrawColor(color);
+        }
     }
 }
 

@@ -54,6 +54,16 @@ background-color: rgb(255, 213, 213)
     <property name="text">
      <string>Eraser</string>
     </property>
+    <property name="icon">
+     <iconset resource="icons.qrc">
+      <normaloff>:/icons/eraserIcon.png</normaloff>:/icons/eraserIcon.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>50</width>
+      <height>50</height>
+     </size>
+    </property>
     <property name="checkable">
      <bool>true</bool>
     </property>
@@ -205,10 +215,14 @@ background-color: rgb(255, 213, 213)
     <property name="text">
      <string>Pen</string>
     </property>
+    <property name="icon">
+     <iconset resource="icons.qrc">
+      <normaloff>:/icons/penIcon.png</normaloff>:/icons/penIcon.png</iconset>
+    </property>
     <property name="iconSize">
      <size>
-      <width>55</width>
-      <height>55</height>
+      <width>60</width>
+      <height>60</height>
      </size>
     </property>
    </widget>
@@ -259,7 +273,7 @@ background-color: rgb(255, 213, 213)
       <x>40</x>
       <y>230</y>
       <width>101</width>
-      <height>26</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -281,17 +295,12 @@ background-color: rgb(255, 213, 213)
     </item>
     <item>
      <property name="text">
-      <string>Triangle</string>
+      <string>Circle</string>
      </property>
     </item>
     <item>
      <property name="text">
       <string>Line</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Circle</string>
      </property>
     </item>
    </widget>
@@ -316,6 +325,8 @@ background-color: rgb(255, 213, 213)
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

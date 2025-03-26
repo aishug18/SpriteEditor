@@ -1,12 +1,14 @@
 #include "spritecanvas.h"
 #include <QPainter>
 #include <QMouseEvent>
+#include <QDebug>   // for debugging, remove before submitting
 
 SpriteCanvas::SpriteCanvas(QWidget *parent)
     : QWidget(parent),
     image(gridWidth, gridHeight, QImage::Format_RGBA8888),
     drawColor(Qt::black),
-    erasing(false)
+    erasing(false),
+    shapeMode(false)    // initialize other stuff
 {
     image.fill(Qt::transparent);
 }
@@ -25,6 +27,16 @@ void SpriteCanvas::setEraserMode(bool enabled) {
 
 void SpriteCanvas::setShapeMode(QString shape) {
     currentShape = shape;
+    shapeMode = true;
+    colorDropper = false;
+}
+
+void SpriteCanvas::setShapeMode(bool mode) {
+    shapeMode = mode;
+}
+
+void SpriteCanvas::setColorDropper(bool mode) {
+    colorDropper = mode;
 }
 
 void SpriteCanvas::paintEvent(QPaintEvent *) {
@@ -40,20 +52,34 @@ void SpriteCanvas::paintEvent(QPaintEvent *) {
 }
 
 void SpriteCanvas::mousePressEvent(QMouseEvent *event) {
-    drawAt(event->pos().x(), event->pos().y());
+    if(colorDropper) {  // Get the color of the pixel clicked
+        int gridX = event->pos().x() / pixelSize;
+        int gridY = event->pos().y() / pixelSize;
 
-    // for shape stuff
-    startPoint = event->pos();
+        if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
+            setDrawColor(image.pixelColor(gridX, gridY));
+        }
+    }
+    else if(!shapeMode) {
+        drawAt(event->pos().x(), event->pos().y());
+    }
+
+    startPoint = event->pos();  // For drawing a shape
 }
 
 void SpriteCanvas::mouseMoveEvent(QMouseEvent *event) {
-    if (event->buttons() & Qt::LeftButton) {
+    if ((event->buttons() & Qt::LeftButton) && !shapeMode) {
         drawAt(event->pos().x(), event->pos().y());
     }
 }
 
-void SpriteCanvas::mouseReleaseEvent(QMouseEvent *event) {  // for drawing shapes
-    // CONSIDER DRAWING FILLED IN SHAPES VS OUTLINES
+void SpriteCanvas::mouseReleaseEvent(QMouseEvent *event) {
+    // CONSIDER DRAWING FILLED IN SHAPES VS OUTLINES?
+
+    if(!shapeMode) {    // Don't draw any shapes if not in shape mode
+        return;
+    }
+
     endPoint = event->pos();
 
     int x1 = startPoint.x() / pixelSize;
@@ -61,46 +87,36 @@ void SpriteCanvas::mouseReleaseEvent(QMouseEvent *event) {  // for drawing shape
     int x2 = endPoint.x() / pixelSize;
     int y2 = endPoint.y() / pixelSize;
 
-    if (currentShape == "Rectangle") {
-        for (int x = x1; x <= x2; ++x) {
-            for (int y = y1; y <= y2; ++y) {
-                image.setPixelColor(x, y, drawColor);
-            }
+    QPainter painter(&image);
+    painter.setPen(drawColor);  // Draws outline
+    //painter.setBrush(drawColor);    // Fills in
+
+    // Get the geometry for shape size
+    int left = std::min(x1, x2);
+    int top = std::min(y1, y2);
+    int width = std::abs(x2 - x1);
+    int height = std::abs(y2 - y1);
+    int size = std::max(width, height); // Used for a square and a perfect circle
+
+    if (currentShape == "Square") {
+        painter.drawRect(QRect(left, top, size, size));
+    }
+    else if (currentShape == "Rectangle") {
+        painter.drawRect(QRect(left, top, width, height));
+    }
+    else if (currentShape == "Circle") {    // Draws a perfect circle
+        painter.drawEllipse(QRect(left, top, size, size));
+    }
+    else if (currentShape == "Line") {  // Only draw vertical or horizontal lines
+        if(height > width) {  // Vertical line
+            painter.drawLine(x1, y1, x1, y2);
+        }
+        else {  // Horizontal line
+            painter.drawLine(x1, y1, x2, y1);
         }
     }
-    else if (currentShape == "Circle") {
-        // Implement circle drawing logic
 
-
-        int radius = std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
-        drawCircle(x1, y1, radius);     // this draws from center (where user clicked) to out.
-    }
-    else if (currentShape == "Line") {
-        // Implement line drawing logic
-        for (int x = x1; x <= x2; ++x) {
-            for (int y = y1; y <= y2; ++y) {
-                image.setPixelColor(x, y, drawColor);
-            }
-        }
-    }
     update();
-}
-
-void SpriteCanvas::drawCircle(int centerX, int centerY, int radius) {
-    for (int y = -radius; y <= radius; ++y) {
-        for (int x = -radius; x <= radius; ++x) {
-            if (x*x + y*y <= radius*radius) { // Check if within circle boundary
-                drawAt(centerX + x, centerY + y);   // should be the same as below logic
-
-                // int gridX = (centerX + x) / pixelSize;
-                // int gridY = (centerY + y) / pixelSize;
-
-                // if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
-                //     image.setPixelColor(gridX, gridY, drawColor);
-                // }
-            }
-        }
-    }
 }
 
 void SpriteCanvas::drawAt(int x, int y) {
@@ -108,6 +124,7 @@ void SpriteCanvas::drawAt(int x, int y) {
     int gridY = y / pixelSize;
 
     if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
+        // If erasing is true, draw transparent pixel to erase, otherwise draw the colored pixel
         image.setPixelColor(gridX, gridY, erasing ? Qt::transparent : drawColor);
         update();
     }

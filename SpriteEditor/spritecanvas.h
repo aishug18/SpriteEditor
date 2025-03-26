@@ -18,6 +18,8 @@ public:
     void setDrawColor(const QColor &color);
     void setEraserMode(bool enabled);
     void setShapeMode(QString shape);
+    void setShapeMode(bool mode);
+    void setColorDropper(bool mode);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -32,6 +34,9 @@ private:
     QImage image;
     QColor drawColor;
     bool erasing;
+
+    bool shapeMode;
+    bool colorDropper;  // for if we're using the color dropper tool
 
     QPoint startPoint;
     QPoint endPoint;
