@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QDebug>   // for debugging, remove before submitting
 
 
@@ -46,6 +48,27 @@ void MainWindow::openColorDialog() {
         QColor color = colorDialog.selectedColor();
         if (color.isValid()) {
             ui->spriteCanvas->setDrawColor(color);
+        }
+    }
+}
+
+//----------------------------------------------------------------------------------------
+void MainWindow::on_saveButton_clicked()
+{
+    QString filePath = QFileDialog::getSaveFileName(this, "Save Sprite", "", "Sprite Sheet Project (*.ssp)");
+    if (!filePath.isEmpty()) {
+        if (!ui->spriteCanvas->saveToJson(filePath)) {
+            QMessageBox::warning(this, "Save Error", "Failed to save the sprite.");
+        }
+    }
+}
+
+void MainWindow::on_loadButton_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Open Sprite", "", "Sprite Sheet Project (*.ssp)");
+    if (!filePath.isEmpty()) {
+        if (!ui->spriteCanvas->loadFromJson(filePath)) {
+            QMessageBox::warning(this, "Load Error", "Failed to load the sprite.");
         }
     }
 }

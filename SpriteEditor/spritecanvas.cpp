@@ -1,6 +1,10 @@
 #include "spritecanvas.h"
 #include <QPainter>
 #include <QMouseEvent>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
 #include <QDebug>   // for debugging, remove before submitting
 
 SpriteCanvas::SpriteCanvas(QWidget *parent)
@@ -128,4 +132,60 @@ void SpriteCanvas::drawAt(int x, int y) {
         image.setPixelColor(gridX, gridY, erasing ? Qt::transparent : drawColor);
         update();
     }
+}
+
+//-----------------------------------------------------------------------------
+bool SpriteCanvas::saveToJson(const QString &filePath) {
+    QJsonObject root;
+    root["width"] = gridWidth;
+    root["height"] = gridHeight;
+
+    QJsonArray pixelRows;
+    for (int y = 0; y < gridHeight; ++y) {
+        QJsonArray row;
+        for (int x = 0; x < gridWidth; ++x) {
+            QColor color = image.pixelColor(x, y);
+            QJsonArray pixel;
+            pixel.append(color.red());
+            pixel.append(color.green());
+            pixel.append(color.blue());
+            pixel.append(color.alpha());
+            row.append(pixel);
+        }
+        pixelRows.append(row);
+    }
+
+    root["pixels"] = pixelRows;
+
+    QJsonDocument doc(root);
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+    file.write(doc.toJson());
+    return true;
+}
+
+bool SpriteCanvas::loadFromJson(const QString &filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QJsonObject root = doc.object();
+
+    int w = root["width"].toInt();
+    int h = root["height"].toInt();
+
+    if (w != gridWidth || h != gridHeight) return false; // handle resizing later if needed
+
+    QJsonArray pixelRows = root["pixels"].toArray();
+    for (int y = 0; y < h; ++y) {
+        QJsonArray row = pixelRows[y].toArray();
+        for (int x = 0; x < w; ++x) {
+            QJsonArray pixel = row[x].toArray();
+            QColor color(pixel[0].toInt(), pixel[1].toInt(), pixel[2].toInt(), pixel[3].toInt());
+            image.setPixelColor(x, y, color);
+        }
+    }
+
+    update();
+    return true;
 }

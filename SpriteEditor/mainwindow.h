@@ -26,5 +26,8 @@ private slots:
     void eraseMode();
     void openColorDialog();
 
+    //--------------------------------
+    void on_saveButton_clicked();
+    void on_loadButton_clicked();
 };
 #endif // MAINWINDOW_H

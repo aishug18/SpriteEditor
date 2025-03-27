@@ -20,6 +20,10 @@ public:
     void setShapeMode(QString shape);
     void setShapeMode(bool mode);
     void setColorDropper(bool mode);
+    //----------------------------------------------
+    bool saveToJson(const QString &filePath);
+    bool loadFromJson(const QString &filePath);
+
 
 protected:
     void paintEvent(QPaintEvent *event) override;
