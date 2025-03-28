@@ -4,8 +4,9 @@
 #include <QWidget>
 #include <QColor>
 #include <QImage>
+#include <QVector>
 #include <QPoint>
-#include <QString>
+#include "spriteframe.h"
 
 class SpriteCanvas : public QWidget
 {
@@ -20,34 +21,55 @@ public:
     void setShapeMode(QString shape);
     void setShapeMode(bool mode);
     void setColorDropper(bool mode);
-    //----------------------------------------------
+
+    // Frame management
+    void addNewFrame();
+    void deleteCurrentFrame();
+    void setCurrentFrame(int frameIndex);
+    int getCurrentFrameIndex() const;
+    int getFrameCount() const;
+    QImage getFrameImage(int frameIndex) const;
+    void duplicateCurrentFrame();
+
+    // Saving & Loading
     bool saveToJson(const QString &filePath);
     bool loadFromJson(const QString &filePath);
 
+signals:
+    void frameAdded(int frameIndex);
+    void frameRemoved(int frameIndex);
+    void currentFrameChanged(int frameIndex);
+    void frameContentChanged(int frameIndex);
+    void colorChanged(const QColor &newColor);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;    // for shapes
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    static const int pixelSize = 20;
-    int gridWidth = 16;
-    int gridHeight = 16;
-    QImage image;
+    static const int pixelSize = 10;
+    int gridWidth = 32;
+    int gridHeight = 32;
+
+    // Frame management
+    QVector<SpriteFrame> frames;
+    int currentFrameIndex;
+
+    // Drawing tools
     QColor drawColor;
     bool erasing;
-
     bool shapeMode;
-    bool colorDropper;  // for if we're using the color dropper tool
-
+    bool colorDropper;
+    QString currentShape;
     QPoint startPoint;
     QPoint endPoint;
-    QString currentShape;
 
     void drawAt(int x, int y);
-    void drawCircle(int centerX, int centerY, int radius);
+    void drawShape(const QPoint &start, const QPoint &end);
+    QImage getCurrentImage() const;
+    void setCurrentImage(const QImage &image);
 };
 
 #endif // SPRITECANVAS_H

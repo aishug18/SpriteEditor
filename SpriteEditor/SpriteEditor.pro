@@ -9,13 +9,21 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    animationcontroller.cpp \
+    animationpreview.cpp \
+    framethumbnail.cpp \
     main.cpp \
     mainwindow.cpp \
-    spritecanvas.cpp
+    spritecanvas.cpp \
+    spriteframe.cpp
 
 HEADERS += \
+    animationcontroller.h \
+    animationpreview.h \
+    framethumbnail.h \
     mainwindow.h \
-    spritecanvas.h
+    spritecanvas.h \
+    spriteframe.h
 
 FORMS += \
     mainwindow.ui

@@ -9,12 +9,14 @@
 
 SpriteCanvas::SpriteCanvas(QWidget *parent)
     : QWidget(parent),
-    image(gridWidth, gridHeight, QImage::Format_RGBA8888),
     drawColor(Qt::black),
     erasing(false),
-    shapeMode(false)    // initialize other stuff
+    shapeMode(false),
+    colorDropper(false),
+    currentFrameIndex(0)
 {
-    image.fill(Qt::transparent);
+    // Create the first frame
+    addNewFrame();
 }
 
 QSize SpriteCanvas::sizeHint() const {
@@ -23,6 +25,7 @@ QSize SpriteCanvas::sizeHint() const {
 
 void SpriteCanvas::setDrawColor(const QColor &color) {
     drawColor = color;
+    emit colorChanged(color);
 }
 
 void SpriteCanvas::setEraserMode(bool enabled) {
@@ -43,11 +46,92 @@ void SpriteCanvas::setColorDropper(bool mode) {
     colorDropper = mode;
 }
 
+// Frame management methods
+void SpriteCanvas::addNewFrame() {
+    frames.append(SpriteFrame(gridWidth, gridHeight));
+    currentFrameIndex = frames.size() - 1;
+    emit frameAdded(currentFrameIndex);
+    emit currentFrameChanged(currentFrameIndex);
+    update();
+}
+
+void SpriteCanvas::deleteCurrentFrame() {
+    // Don't delete if it's the only frame
+    if (frames.size() <= 1) {
+        return;
+    }
+
+    int frameToRemove = currentFrameIndex;
+    int newCurrentFrame = (currentFrameIndex > 0) ? currentFrameIndex - 1 : 0;
+
+    frames.removeAt(frameToRemove);
+    currentFrameIndex = newCurrentFrame;
+
+    emit frameRemoved(frameToRemove);
+    emit currentFrameChanged(currentFrameIndex);
+    update();
+}
+
+void SpriteCanvas::setCurrentFrame(int frameIndex) {
+    if (frameIndex >= 0 && frameIndex < frames.size() && frameIndex != currentFrameIndex) {
+        currentFrameIndex = frameIndex;
+        emit currentFrameChanged(currentFrameIndex);
+        update();
+    }
+}
+
+int SpriteCanvas::getCurrentFrameIndex() const {
+    return currentFrameIndex;
+}
+
+int SpriteCanvas::getFrameCount() const {
+    return frames.size();
+}
+
+QImage SpriteCanvas::getFrameImage(int frameIndex) const {
+    if (frameIndex >= 0 && frameIndex < frames.size()) {
+        return frames[frameIndex].image();
+    }
+    return QImage();
+}
+
+void SpriteCanvas::duplicateCurrentFrame() {
+    if (currentFrameIndex >= 0 && currentFrameIndex < frames.size()) {
+        QImage currentImg = frames[currentFrameIndex].image();
+        frames.insert(currentFrameIndex + 1, SpriteFrame(currentImg));
+        currentFrameIndex++;
+        emit frameAdded(currentFrameIndex);
+        emit currentFrameChanged(currentFrameIndex);
+        update();
+    }
+}
+
+QImage SpriteCanvas::getCurrentImage() const {
+    if (frames.isEmpty()) {
+        return QImage();
+    }
+    return frames[currentFrameIndex].image();
+}
+
+void SpriteCanvas::setCurrentImage(const QImage &image) {
+    if (!frames.isEmpty()) {
+        frames[currentFrameIndex].setImage(image);
+        update();
+        emit frameContentChanged(currentFrameIndex);
+    }
+}
+
 void SpriteCanvas::paintEvent(QPaintEvent *) {
+    if (frames.isEmpty()) {
+        return;
+    }
+
     QPainter painter(this);
+    QImage currentImage = getCurrentImage();
+
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
-            QColor color = image.pixelColor(x, y);
+            QColor color = currentImage.pixelColor(x, y);
             painter.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize, color);
             painter.setPen(Qt::gray);
             painter.drawRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
@@ -61,7 +145,8 @@ void SpriteCanvas::mousePressEvent(QMouseEvent *event) {
         int gridY = event->pos().y() / pixelSize;
 
         if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
-            setDrawColor(image.pixelColor(gridX, gridY));
+            QImage currentImage = getCurrentImage();
+            setDrawColor(currentImage.pixelColor(gridX, gridY));
         }
     }
     else if(!shapeMode) {
@@ -78,22 +163,23 @@ void SpriteCanvas::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void SpriteCanvas::mouseReleaseEvent(QMouseEvent *event) {
-    // CONSIDER DRAWING FILLED IN SHAPES VS OUTLINES?
-
     if(!shapeMode) {    // Don't draw any shapes if not in shape mode
         return;
     }
 
     endPoint = event->pos();
+    drawShape(startPoint, endPoint);
+}
 
-    int x1 = startPoint.x() / pixelSize;
-    int y1 = startPoint.y() / pixelSize;
-    int x2 = endPoint.x() / pixelSize;
-    int y2 = endPoint.y() / pixelSize;
+void SpriteCanvas::drawShape(const QPoint &start, const QPoint &end) {
+    int x1 = start.x() / pixelSize;
+    int y1 = start.y() / pixelSize;
+    int x2 = end.x() / pixelSize;
+    int y2 = end.y() / pixelSize;
 
-    QPainter painter(&image);
-    painter.setPen(drawColor);  // Draws outline
-    //painter.setBrush(drawColor);    // Fills in
+    QImage currentImage = getCurrentImage();
+    QPainter painter(&currentImage);
+    painter.setPen(erasing ? Qt::transparent : drawColor);  // Draws outline
 
     // Get the geometry for shape size
     int left = std::min(x1, x2);
@@ -120,7 +206,7 @@ void SpriteCanvas::mouseReleaseEvent(QMouseEvent *event) {
         }
     }
 
-    update();
+    setCurrentImage(currentImage);
 }
 
 void SpriteCanvas::drawAt(int x, int y) {
@@ -128,34 +214,44 @@ void SpriteCanvas::drawAt(int x, int y) {
     int gridY = y / pixelSize;
 
     if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
-        // If erasing is true, draw transparent pixel to erase, otherwise draw the colored pixel
-        image.setPixelColor(gridX, gridY, erasing ? Qt::transparent : drawColor);
-        update();
+        QImage currentImage = getCurrentImage();
+        currentImage.setPixelColor(gridX, gridY, erasing ? Qt::transparent : drawColor);
+        setCurrentImage(currentImage);
     }
 }
 
-//-----------------------------------------------------------------------------
 bool SpriteCanvas::saveToJson(const QString &filePath) {
     QJsonObject root;
     root["width"] = gridWidth;
     root["height"] = gridHeight;
+    root["frameCount"] = frames.size();
 
-    QJsonArray pixelRows;
-    for (int y = 0; y < gridHeight; ++y) {
-        QJsonArray row;
-        for (int x = 0; x < gridWidth; ++x) {
-            QColor color = image.pixelColor(x, y);
-            QJsonArray pixel;
-            pixel.append(color.red());
-            pixel.append(color.green());
-            pixel.append(color.blue());
-            pixel.append(color.alpha());
-            row.append(pixel);
+    QJsonArray framesArray;
+    for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
+        QJsonObject frameObj;
+        QImage frameImage = frames[frameIndex].image();
+
+        QJsonArray pixelRows;
+        for (int y = 0; y < gridHeight; ++y) {
+            QJsonArray row;
+            for (int x = 0; x < gridWidth; ++x) {
+                QColor color = frameImage.pixelColor(x, y);
+                QJsonArray pixel;
+                pixel.append(color.red());
+                pixel.append(color.green());
+                pixel.append(color.blue());
+                pixel.append(color.alpha());
+                row.append(pixel);
+            }
+            pixelRows.append(row);
         }
-        pixelRows.append(row);
+
+        frameObj["pixels"] = pixelRows;
+        framesArray.append(frameObj);
     }
 
-    root["pixels"] = pixelRows;
+    root["frames"] = framesArray;
+    root["currentFrame"] = currentFrameIndex;
 
     QJsonDocument doc(root);
     QFile file(filePath);
@@ -173,19 +269,45 @@ bool SpriteCanvas::loadFromJson(const QString &filePath) {
 
     int w = root["width"].toInt();
     int h = root["height"].toInt();
+    int frameCount = root["frameCount"].toInt(1); // Default to 1 if not specified
 
-    if (w != gridWidth || h != gridHeight) return false; // handle resizing later if needed
+    // Clear existing frames
+    frames.clear();
 
-    QJsonArray pixelRows = root["pixels"].toArray();
-    for (int y = 0; y < h; ++y) {
-        QJsonArray row = pixelRows[y].toArray();
-        for (int x = 0; x < w; ++x) {
-            QJsonArray pixel = row[x].toArray();
-            QColor color(pixel[0].toInt(), pixel[1].toInt(), pixel[2].toInt(), pixel[3].toInt());
-            image.setPixelColor(x, y, color);
+    // Load all frames
+    QJsonArray framesArray = root["frames"].toArray();
+    for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+        QJsonObject frameObj = framesArray[frameIndex].toObject();
+        QJsonArray pixelRows = frameObj["pixels"].toArray();
+
+        SpriteFrame newFrame(w, h);
+        QImage frameImage = newFrame.image();
+
+        for (int y = 0; y < h; ++y) {
+            QJsonArray row = pixelRows[y].toArray();
+            for (int x = 0; x < w; ++x) {
+                QJsonArray pixel = row[x].toArray();
+                QColor color(pixel[0].toInt(), pixel[1].toInt(), pixel[2].toInt(), pixel[3].toInt());
+                frameImage.setPixelColor(x, y, color);
+            }
         }
+
+        newFrame.setImage(frameImage);
+        frames.append(newFrame);
     }
 
+    // Set current frame
+    currentFrameIndex = root["currentFrame"].toInt(0);
+    if (currentFrameIndex >= frames.size()) {
+        currentFrameIndex = 0;
+    }
+
+    // If no frames were loaded, create at least one
+    if (frames.isEmpty()) {
+        addNewFrame();
+    }
+
+    emit currentFrameChanged(currentFrameIndex);
     update();
     return true;
 }
