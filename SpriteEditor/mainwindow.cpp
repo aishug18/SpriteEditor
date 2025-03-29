@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QButtonGroup>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -274,3 +275,17 @@ void MainWindow::onColorChanged(const QColor &color) {
     QString styleSheet = QString("QPushButton { background-color: %1; border-radius: 12px; }").arg(color.name());
     ui->colorPushButton->setStyleSheet(styleSheet);
 }
+
+void MainWindow::on_resizeCanvasButton_clicked()
+{
+    const int maxSize = 32;  // You can increase this if needed
+
+    bool ok1, ok2;
+    int width = QInputDialog::getInt(this, "Canvas Width", "Enter new width (max 32):", 16, 1, maxSize, 1, &ok1);
+    int height = QInputDialog::getInt(this, "Canvas Height", "Enter new height (max 32):", 16, 1, maxSize, 1, &ok2);
+
+    if (ok1 && ok2) {
+        ui->spriteCanvas->resizeCanvas(width, height);
+    }
+}
+

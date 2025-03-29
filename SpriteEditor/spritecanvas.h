@@ -13,7 +13,12 @@ class SpriteCanvas : public QWidget
     Q_OBJECT
 
 public:
+    //------------------------------------------------------
+    //explicit SpriteCanvas(QWidget *parent = nullptr);
+    //QSize sizeHint() const override;
+
     explicit SpriteCanvas(QWidget *parent = nullptr);
+    void resizeCanvas(int newWidth, int newHeight);
     QSize sizeHint() const override;
 
     void setDrawColor(const QColor &color);
@@ -50,6 +55,9 @@ protected:
 
 private:
     static const int pixelSize = 10;
+
+    //-----------------------------------
+    //QImage image;
     int gridWidth = 32;
     int gridHeight = 32;
 

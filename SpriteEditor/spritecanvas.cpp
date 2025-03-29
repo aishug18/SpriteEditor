@@ -311,3 +311,24 @@ bool SpriteCanvas::loadFromJson(const QString &filePath) {
     update();
     return true;
 }
+
+//-----------------------------------------------------------------
+void SpriteCanvas::resizeCanvas(int newWidth, int newHeight)
+{
+    gridWidth = newWidth;
+    gridHeight = newHeight;
+
+    // Create a new blank transparent image
+    QImage blankImage(gridWidth, gridHeight, QImage::Format_RGBA8888);
+    blankImage.fill(Qt::transparent);
+
+    // Replace the current frame's image with the blank one
+    if (!frames.isEmpty()) {
+        frames[currentFrameIndex].setImage(blankImage);
+        emit frameContentChanged(currentFrameIndex);
+    }
+
+    updateGeometry();  // Let layout know the canvas size changed
+    update();          // Redraw the canvas
+}
+

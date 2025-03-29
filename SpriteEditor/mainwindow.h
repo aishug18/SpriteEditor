@@ -37,6 +37,8 @@ private slots:
     void onFpsSliderChanged(int value);
     void onColorChanged(const QColor &color);
 
+    void on_resizeCanvasButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     AnimationController *animationController;

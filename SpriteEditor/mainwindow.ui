@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>920</width>
-    <height>650</height>
+    <height>713</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,7 +37,6 @@
      <number>16</number>
     </property>
     <item>
-     <!-- LEFT PANEL: TOOLS -->
      <layout class="QVBoxLayout" name="toolsLayout">
       <property name="spacing">
        <number>12</number>
@@ -121,7 +120,7 @@ QPushButton:hover {
          <string>TOOLS</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -323,9 +322,19 @@ QPushButton:hover {
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="resizeCanvasButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 213, 213);</string>
+        </property>
+        <property name="text">
+         <string>Resize Canvas</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -337,8 +346,6 @@ QPushButton:hover {
       </item>
      </layout>
     </item>
-
-    <!-- MIDDLE PANEL: FRAMES -->
     <item>
      <layout class="QVBoxLayout" name="framesColumnLayout">
       <property name="spacing">
@@ -360,7 +367,7 @@ QPushButton:hover {
          <string>FRAMES</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -525,10 +532,10 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
 }</string>
         </property>
         <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+         <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
         </property>
         <property name="widgetResizable">
          <bool>true</bool>
@@ -539,7 +546,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
            <x>0</x>
            <y>0</y>
            <width>118</width>
-           <height>473</height>
+           <height>551</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -567,15 +574,22 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
       </item>
      </layout>
     </item>
-
-    <!-- RIGHT PANEL: CANVAS & PREVIEW -->
     <item>
      <layout class="QVBoxLayout" name="canvasLayout">
       <property name="spacing">
        <number>12</number>
       </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+      </property>
       <item>
        <widget class="SpriteCanvas" name="spriteCanvas" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>420</width>
@@ -607,7 +621,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
          <string>ANIMATION PREVIEW</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -626,10 +640,10 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
 }</string>
         </property>
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::Shape::StyledPanel</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
        </widget>
       </item>
@@ -637,6 +651,9 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
        <layout class="QVBoxLayout" name="fpsControlLayout">
         <property name="spacing">
          <number>4</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
         </property>
         <item>
          <widget class="QSlider" name="fpsSlider">
@@ -681,10 +698,10 @@ QSlider::sub-page:horizontal {
            <number>12</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="tickPosition">
-           <enum>QSlider::TicksBelow</enum>
+           <enum>QSlider::TickPosition::TicksBelow</enum>
           </property>
           <property name="tickInterval">
            <number>10</number>
@@ -725,7 +742,7 @@ QSlider::sub-page:horizontal {
              <string>12</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
