@@ -1,8 +1,14 @@
 <RCC>
-    <qresource prefix="/">
-        <file>icons/colorWheelIcon.png</file>
-        <file>icons/penIcon.png</file>
-        <file>icons/colorDropperIcon.png</file>
+    <qresource prefix="/eraser">
         <file>icons/eraserIcon.png</file>
+    </qresource>
+    <qresource prefix="/pen">
+        <file>icons/penIcon.png</file>
+    </qresource>
+    <qresource prefix="/color picker">
+        <file>icons/colorDropperIcon.png</file>
+    </qresource>
+    <qresource prefix="/color wheel">
+        <file>icons/colorWheelIcon.png</file>
     </qresource>
 </RCC>
