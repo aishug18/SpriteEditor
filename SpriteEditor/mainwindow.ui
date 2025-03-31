@@ -141,7 +141,7 @@ QPushButton:hover {
         <property name="styleSheet">
          <string notr="true">
 QToolButton {
-    background-color: rgb(255, 213, 213);
+    background-color: rgb(255, 190, 190);
     border-radius: 12px;
     color: rgb(0, 0, 0);
 }
@@ -149,17 +149,15 @@ QToolButton:hover {
     background-color: rgb(255, 190, 190);
 }
 QToolButton:checked {
-    background-color: rgb(255, 150, 150);
-    border: 2px solid rgb(255, 0, 127);
-}
-         </string>
+    background-color: rgb(255, 190, 190);
+            </string>
         </property>
         <property name="text">
          <string>Pen</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/icons/penIcon.png</normaloff>:/icons/penIcon.png</iconset>
+          <normaloff>:/pen/icons/penIcon.png</normaloff>:/pen/icons/penIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -256,7 +254,7 @@ QToolButton:checked {
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/icons/eraserIcon.png</normaloff>:/icons/eraserIcon.png</iconset>
+          <normaloff>:/eraser/icons/eraserIcon.png</normaloff>:/eraser/icons/eraserIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -299,7 +297,7 @@ Dropper</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/icons/colorDropperIcon.png</normaloff>:/icons/colorDropperIcon.png</iconset>
+          <normaloff>:/color picker/icons/colorDropperIcon.png</normaloff>:/color picker/icons/colorDropperIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -337,7 +335,7 @@ QPushButton:hover {
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/icons/colorWheelIcon.png</normaloff>:/icons/colorWheelIcon.png</iconset>
+          <normaloff>:/color wheel/icons/colorWheelIcon.png</normaloff>:/color wheel/icons/colorWheelIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -583,7 +581,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
            <x>0</x>
            <y>0</y>
            <width>118</width>
-           <height>560</height>
+           <height>545</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -799,7 +797,7 @@ QSlider::sub-page:horizontal {
      <x>0</x>
      <y>0</y>
      <width>920</width>
-     <height>22</height>
+     <height>37</height>
     </rect>
    </property>
    <property name="styleSheet">
