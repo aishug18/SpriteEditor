@@ -1,3 +1,11 @@
+/**
+ * @file spritecanvas.cpp
+ * @author Anurup Kumar | Diya Mandot | Kunj Rathod | Aishwarya Golakoti | Morris Lu
+ * @course CS 3505
+ * @brief Implements the drawing logic and frame management for SpriteCanvas.
+ * @checkedby Reviewer Name
+ */
+
 #include "spritecanvas.h"
 #include <QPainter>
 #include <QMouseEvent>
@@ -5,8 +13,12 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFile>
-#include <QDebug>   // for debugging, remove before submitting
+#include <QDebug>
 
+/**
+ * @brief Constructs the SpriteCanvas and initializes the first frame.
+ * @param parent Optional parent widget.
+ */
 SpriteCanvas::SpriteCanvas(QWidget *parent)
     : QWidget(parent),
     drawColor(Qt::black),
@@ -15,7 +27,6 @@ SpriteCanvas::SpriteCanvas(QWidget *parent)
     colorDropper(false),
     currentFrameIndex(0)
 {
-    // Create the first frame
     addNewFrame();
 }
 
@@ -23,6 +34,10 @@ QSize SpriteCanvas::sizeHint() const {
     return QSize(gridWidth * pixelSize, gridHeight * pixelSize);
 }
 
+/**
+ * @brief Sets the drawing color and emits colorChanged.
+ * @param color New drawing color.
+ */
 void SpriteCanvas::setDrawColor(const QColor &color) {
     drawColor = color;
     emit colorChanged(color);
@@ -46,7 +61,9 @@ void SpriteCanvas::setColorDropper(bool mode) {
     colorDropper = mode;
 }
 
-// Frame management methods
+/**
+ * @brief Adds a new blank frame and sets it as current.
+ */
 void SpriteCanvas::addNewFrame() {
     frames.append(SpriteFrame(gridWidth, gridHeight));
     currentFrameIndex = frames.size() - 1;
@@ -55,11 +72,11 @@ void SpriteCanvas::addNewFrame() {
     update();
 }
 
+/**
+ * @brief Deletes the current frame if more than one exists.
+ */
 void SpriteCanvas::deleteCurrentFrame() {
-    // Don't delete if it's the only frame
-    if (frames.size() <= 1) {
-        return;
-    }
+    if (frames.size() <= 1) return;
 
     int frameToRemove = currentFrameIndex;
     int newCurrentFrame = (currentFrameIndex > 0) ? currentFrameIndex - 1 : 0;
@@ -95,6 +112,9 @@ QImage SpriteCanvas::getFrameImage(int frameIndex) const {
     return QImage();
 }
 
+/**
+ * @brief Duplicates the current frame.
+ */
 void SpriteCanvas::duplicateCurrentFrame() {
     if (currentFrameIndex >= 0 && currentFrameIndex < frames.size()) {
         QImage currentImg = frames[currentFrameIndex].image();
@@ -107,9 +127,7 @@ void SpriteCanvas::duplicateCurrentFrame() {
 }
 
 QImage SpriteCanvas::getCurrentImage() const {
-    if (frames.isEmpty()) {
-        return QImage();
-    }
+    if (frames.isEmpty()) return QImage();
     return frames[currentFrameIndex].image();
 }
 
@@ -122,9 +140,7 @@ void SpriteCanvas::setCurrentImage(const QImage &image) {
 }
 
 void SpriteCanvas::paintEvent(QPaintEvent *) {
-    if (frames.isEmpty()) {
-        return;
-    }
+    if (frames.isEmpty()) return;
 
     QPainter painter(this);
     QImage currentImage = getCurrentImage();
@@ -140,20 +156,17 @@ void SpriteCanvas::paintEvent(QPaintEvent *) {
 }
 
 void SpriteCanvas::mousePressEvent(QMouseEvent *event) {
-    if(colorDropper) {  // Get the color of the pixel clicked
+    if (colorDropper) {
         int gridX = event->pos().x() / pixelSize;
         int gridY = event->pos().y() / pixelSize;
-
         if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
             QImage currentImage = getCurrentImage();
             setDrawColor(currentImage.pixelColor(gridX, gridY));
         }
-    }
-    else if(!shapeMode) {
+    } else if (!shapeMode) {
         drawAt(event->pos().x(), event->pos().y());
     }
-
-    startPoint = event->pos();  // For drawing a shape
+    startPoint = event->pos();
 }
 
 void SpriteCanvas::mouseMoveEvent(QMouseEvent *event) {
@@ -163,14 +176,14 @@ void SpriteCanvas::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void SpriteCanvas::mouseReleaseEvent(QMouseEvent *event) {
-    if(!shapeMode) {    // Don't draw any shapes if not in shape mode
-        return;
-    }
-
+    if (!shapeMode) return;
     endPoint = event->pos();
     drawShape(startPoint, endPoint);
 }
 
+/**
+ * @brief Draws the selected shape on the canvas.
+ */
 void SpriteCanvas::drawShape(const QPoint &start, const QPoint &end) {
     int x1 = start.x() / pixelSize;
     int y1 = start.y() / pixelSize;
@@ -179,29 +192,24 @@ void SpriteCanvas::drawShape(const QPoint &start, const QPoint &end) {
 
     QImage currentImage = getCurrentImage();
     QPainter painter(&currentImage);
-    painter.setPen(erasing ? Qt::transparent : drawColor);  // Draws outline
+    painter.setPen(erasing ? Qt::transparent : drawColor);
 
-    // Get the geometry for shape size
     int left = std::min(x1, x2);
     int top = std::min(y1, y2);
     int width = std::abs(x2 - x1);
     int height = std::abs(y2 - y1);
-    int size = std::max(width, height); // Used for a square and a perfect circle
+    int size = std::max(width, height);
 
     if (currentShape == "Square") {
         painter.drawRect(QRect(left, top, size, size));
-    }
-    else if (currentShape == "Rectangle") {
+    } else if (currentShape == "Rectangle") {
         painter.drawRect(QRect(left, top, width, height));
-    }
-    else if (currentShape == "Circle") {    // Draws a perfect circle
+    } else if (currentShape == "Circle") {
         painter.drawEllipse(QRect(left, top, size, size));
-    }
-    else if (currentShape == "Line") {  // Only draw vertical or horizontal lines
-        if(height > width) {  // Vertical line
+    } else if (currentShape == "Line") {
+        if (height > width) {
             painter.drawLine(x1, y1, x1, y2);
-        }
-        else {  // Horizontal line
+        } else {
             painter.drawLine(x1, y1, x2, y1);
         }
     }
@@ -212,7 +220,6 @@ void SpriteCanvas::drawShape(const QPoint &start, const QPoint &end) {
 void SpriteCanvas::drawAt(int x, int y) {
     int gridX = x / pixelSize;
     int gridY = y / pixelSize;
-
     if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
         QImage currentImage = getCurrentImage();
         currentImage.setPixelColor(gridX, gridY, erasing ? Qt::transparent : drawColor);
@@ -220,6 +227,11 @@ void SpriteCanvas::drawAt(int x, int y) {
     }
 }
 
+/**
+ * @brief Saves the current sprite project to a JSON file.
+ * @param filePath The destination file path.
+ * @return True if saved successfully, false otherwise.
+ */
 bool SpriteCanvas::saveToJson(const QString &filePath) {
     QJsonObject root;
     root["width"] = gridWidth;
@@ -230,26 +242,19 @@ bool SpriteCanvas::saveToJson(const QString &filePath) {
     for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
         QJsonObject frameObj;
         QImage frameImage = frames[frameIndex].image();
-
         QJsonArray pixelRows;
         for (int y = 0; y < gridHeight; ++y) {
             QJsonArray row;
             for (int x = 0; x < gridWidth; ++x) {
                 QColor color = frameImage.pixelColor(x, y);
-                QJsonArray pixel;
-                pixel.append(color.red());
-                pixel.append(color.green());
-                pixel.append(color.blue());
-                pixel.append(color.alpha());
+                QJsonArray pixel = { color.red(), color.green(), color.blue(), color.alpha() };
                 row.append(pixel);
             }
             pixelRows.append(row);
         }
-
         frameObj["pixels"] = pixelRows;
         framesArray.append(frameObj);
     }
-
     root["frames"] = framesArray;
     root["currentFrame"] = currentFrameIndex;
 
@@ -260,6 +265,11 @@ bool SpriteCanvas::saveToJson(const QString &filePath) {
     return true;
 }
 
+/**
+ * @brief Loads a sprite project from a JSON file.
+ * @param filePath The file path to load from.
+ * @return True if loaded successfully, false otherwise.
+ */
 bool SpriteCanvas::loadFromJson(const QString &filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) return false;
@@ -269,17 +279,14 @@ bool SpriteCanvas::loadFromJson(const QString &filePath) {
 
     int w = root["width"].toInt();
     int h = root["height"].toInt();
-    int frameCount = root["frameCount"].toInt(1); // Default to 1 if not specified
+    int frameCount = root["frameCount"].toInt(1);
 
-    // Clear existing frames
     frames.clear();
 
-    // Load all frames
     QJsonArray framesArray = root["frames"].toArray();
     for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
         QJsonObject frameObj = framesArray[frameIndex].toObject();
         QJsonArray pixelRows = frameObj["pixels"].toArray();
-
         SpriteFrame newFrame(w, h);
         QImage frameImage = newFrame.image();
 
@@ -291,44 +298,36 @@ bool SpriteCanvas::loadFromJson(const QString &filePath) {
                 frameImage.setPixelColor(x, y, color);
             }
         }
-
         newFrame.setImage(frameImage);
         frames.append(newFrame);
     }
 
-    // Set current frame
     currentFrameIndex = root["currentFrame"].toInt(0);
-    if (currentFrameIndex >= frames.size()) {
-        currentFrameIndex = 0;
-    }
-
-    // If no frames were loaded, create at least one
-    if (frames.isEmpty()) {
-        addNewFrame();
-    }
+    if (currentFrameIndex >= frames.size()) currentFrameIndex = 0;
+    if (frames.isEmpty()) addNewFrame();
 
     emit currentFrameChanged(currentFrameIndex);
     update();
     return true;
 }
 
-//-----------------------------------------------------------------
-void SpriteCanvas::resizeCanvas(int newWidth, int newHeight)
-{
+/**
+ * @brief Resizes the sprite canvas to the new width and height.
+ * @param newWidth New canvas width in pixels.
+ * @param newHeight New canvas height in pixels.
+ */
+void SpriteCanvas::resizeCanvas(int newWidth, int newHeight) {
     gridWidth = newWidth;
     gridHeight = newHeight;
 
-    // Create a new blank transparent image
     QImage blankImage(gridWidth, gridHeight, QImage::Format_RGBA8888);
     blankImage.fill(Qt::transparent);
 
-    // Replace the current frame's image with the blank one
     if (!frames.isEmpty()) {
         frames[currentFrameIndex].setImage(blankImage);
         emit frameContentChanged(currentFrameIndex);
     }
 
-    updateGeometry();  // Let layout know the canvas size changed
-    update();          // Redraw the canvas
+    updateGeometry();
+    update();
 }
-

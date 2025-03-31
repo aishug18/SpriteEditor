@@ -1,5 +1,14 @@
+/**
+ * @file mainwindow.cpp
+ * @author Anurup Kumar | Diya Mandot | Kunj Rathod | Aishwarya Golakoti | Morris Lu
+ * @course CS 3505
+ * @brief Implements the main window UI logic for the Qt Sprite Editor.
+ * @checkedby all of us
+ */
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -9,48 +18,54 @@
 #include <QButtonGroup>
 #include <QInputDialog>
 
+/**
+ * @brief Constructor for MainWindow. Sets up UI and connects all signals/slots.
+ * @param parent Optional parent widget.
+ */
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    // Set up tool buttons in an exclusive group
-    QButtonGroup* toolsGroup = new QButtonGroup(this);
+    // Set up mutually exclusive tool buttons
+    QButtonGroup *toolsGroup = new QButtonGroup(this);
     toolsGroup->addButton(ui->penToolButton);
     toolsGroup->addButton(ui->eraseToggleButton);
     toolsGroup->addButton(ui->colorDropperToolButton);
     toolsGroup->setExclusive(true);
 
-    // Create animation controller
+    // Create animation controller for sprite canvas
     animationController = new AnimationController(ui->spriteCanvas, this);
 
-    // Initialize Animation Controls
+    // Initialize animation preview and controls
     initializeAnimationControls();
 
-    // Initialize Frame Management
+    // Frame management setup
     framesLayout = ui->thumbnailsLayout;
     framesScrollArea = ui->framesScrollArea;
 
-    // Connect frame management buttons
+    // Connect frame control buttons
     connect(ui->addFrameButton, &QPushButton::clicked, this, &MainWindow::addNewFrame);
     connect(ui->deleteFrameButton, &QPushButton::clicked, this, &MainWindow::deleteCurrentFrame);
     connect(ui->duplicateFrameButton, &QPushButton::clicked, this, &MainWindow::duplicateCurrentFrame);
 
-    // Connect sprite canvas frame signals
+    // Connect sprite canvas signals to main window
     connect(ui->spriteCanvas, &SpriteCanvas::frameAdded, this, &MainWindow::onFrameAdded);
     connect(ui->spriteCanvas, &SpriteCanvas::frameRemoved, this, &MainWindow::onFrameRemoved);
     connect(ui->spriteCanvas, &SpriteCanvas::currentFrameChanged, this, &MainWindow::updateFrameThumbnails);
     connect(ui->spriteCanvas, &SpriteCanvas::frameContentChanged, this, &MainWindow::updateFrameThumbnails);
 
-    // Connect drawing tools
+    // Tool button behavior
     connect(ui->penToolButton, &QToolButton::clicked, this, &MainWindow::penMode);
     connect(ui->eraseToggleButton, &QToolButton::clicked, this, &MainWindow::eraseMode);
     connect(ui->colorPushButton, &QPushButton::clicked, this, &MainWindow::openColorDialog);
+
     connect(ui->colorDropperToolButton, &QToolButton::clicked, this, [this]() {
         ui->spriteCanvas->setColorDropper(true);
     });
 
+    // Shape selection combo box
     connect(ui->shapeComboBox, &QComboBox::currentTextChanged, this, [this](const QString &shape) {
         ui->spriteCanvas->setShapeMode(shape);
         ui->penToolButton->setChecked(false);
@@ -58,34 +73,44 @@ MainWindow::MainWindow(QWidget *parent)
         ui->colorDropperToolButton->setChecked(false);
     });
 
-    // Connect color changed signal
+    // Color synchronization
     connect(ui->spriteCanvas, &SpriteCanvas::colorChanged, this, &MainWindow::onColorChanged);
 
-    // Connect FPS slider
+    // FPS slider connection
     connect(ui->fpsSlider, &QSlider::valueChanged, this, &MainWindow::onFpsSliderChanged);
     updateFpsLabel();
 
-    // Add the first frame thumbnail
+    // Add the initial frame thumbnail
     onFrameAdded(0);
 }
 
+/**
+ * @brief Destructor for MainWindow.
+ */
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+/**
+ * @brief Initializes the animation preview pane and its controls.
+ */
 void MainWindow::initializeAnimationControls()
 {
-    // Create a layout for the animation controls in the preview frame
-    QVBoxLayout* previewLayout = new QVBoxLayout(ui->previewFrame);
+    QVBoxLayout *previewLayout = new QVBoxLayout(ui->previewFrame);
     previewLayout->setContentsMargins(10, 10, 10, 10);
     previewLayout->setSpacing(10);
 
-    // Create animation preview widget
+    // Animation preview widget
     animPreview = new AnimationPreview(ui->spriteCanvas, ui->previewFrame);
     previewLayout->addWidget(animPreview);
 
-    // Create animation control buttons
-    QHBoxLayout* controlsLayout = new QHBoxLayout();
+    // Controls layout
+    QHBoxLayout *controlsLayout = new QHBoxLayout();
     controlsLayout->setSpacing(5);
 
     // Previous frame button
-    QPushButton* prevButton = new QPushButton("◀", ui->previewFrame);
+    QPushButton *prevButton = new QPushButton("◀", ui->previewFrame);
     prevButton->setFixedSize(30, 30);
     prevButton->setStyleSheet("background-color: #FFD5D5; border-radius: 15px;");
     connect(prevButton, &QPushButton::clicked, animationController, &AnimationController::previousFrame);
@@ -99,41 +124,47 @@ void MainWindow::initializeAnimationControls()
     controlsLayout->addWidget(playPauseButton);
 
     // Next frame button
-    QPushButton* nextButton = new QPushButton("▶", ui->previewFrame);
+    QPushButton *nextButton = new QPushButton("▶", ui->previewFrame);
     nextButton->setFixedSize(30, 30);
     nextButton->setStyleSheet("background-color: #FFD5D5; border-radius: 15px;");
     connect(nextButton, &QPushButton::clicked, animationController, &AnimationController::nextFrame);
     controlsLayout->addWidget(nextButton);
 
-    // Add controls to preview layout
     previewLayout->addLayout(controlsLayout);
 
-    // Connect sprite canvas frame signals to preview
+    // Link sprite canvas to preview
     connect(ui->spriteCanvas, &SpriteCanvas::currentFrameChanged, animPreview, &AnimationPreview::updateCurrentFrame);
     connect(ui->spriteCanvas, &SpriteCanvas::frameContentChanged, animPreview, &AnimationPreview::refreshFrames);
     connect(ui->spriteCanvas, &SpriteCanvas::frameAdded, animPreview, &AnimationPreview::refreshFrames);
 }
 
-MainWindow::~MainWindow()
+/**
+ * @brief Enables pen tool and disables others.
+ */
+void MainWindow::penMode()
 {
-    delete ui;
-}
-
-void MainWindow::penMode() {
     ui->spriteCanvas->setEraserMode(false);
     ui->spriteCanvas->setShapeMode(false);
     ui->spriteCanvas->setColorDropper(false);
 }
 
-void MainWindow::eraseMode() {
+/**
+ * @brief Enables eraser tool and disables others.
+ */
+void MainWindow::eraseMode()
+{
     ui->spriteCanvas->setEraserMode(true);
     ui->spriteCanvas->setShapeMode(false);
     ui->spriteCanvas->setColorDropper(false);
 }
 
-void MainWindow::openColorDialog() {
+/**
+ * @brief Opens a QColorDialog to choose drawing color.
+ */
+void MainWindow::openColorDialog()
+{
     QColorDialog colorDialog(this);
-    colorDialog.setOption(QColorDialog::ShowAlphaChannel); // Allow alpha selection
+    colorDialog.setOption(QColorDialog::ShowAlphaChannel);
 
     if (colorDialog.exec() == QDialog::Accepted) {
         QColor color = colorDialog.selectedColor();
@@ -143,7 +174,11 @@ void MainWindow::openColorDialog() {
     }
 }
 
-void MainWindow::on_saveButton_clicked() {
+/**
+ * @brief Saves the sprite sheet to a .ssp file.
+ */
+void MainWindow::on_saveButton_clicked()
+{
     QString filePath = QFileDialog::getSaveFileName(this, "Save Sprite", "", "Sprite Sheet Project (*.ssp)");
     if (!filePath.isEmpty()) {
         if (!ui->spriteCanvas->saveToJson(filePath)) {
@@ -152,103 +187,128 @@ void MainWindow::on_saveButton_clicked() {
     }
 }
 
-void MainWindow::on_loadButton_clicked() {
+/**
+ * @brief Loads a sprite sheet from a .ssp file.
+ */
+void MainWindow::on_loadButton_clicked()
+{
     QString filePath = QFileDialog::getOpenFileName(this, "Open Sprite", "", "Sprite Sheet Project (*.ssp)");
     if (!filePath.isEmpty()) {
         if (!ui->spriteCanvas->loadFromJson(filePath)) {
             QMessageBox::warning(this, "Load Error", "Failed to load the sprite.");
         } else {
-            // Update thumbnails after loading
             updateFrameThumbnails();
         }
     }
 }
 
-void MainWindow::addNewFrame() {
+/**
+ * @brief Adds a new frame to the animation.
+ */
+void MainWindow::addNewFrame()
+{
     ui->spriteCanvas->addNewFrame();
 }
 
-void MainWindow::deleteCurrentFrame() {
+/**
+ * @brief Deletes the current frame.
+ */
+void MainWindow::deleteCurrentFrame()
+{
     ui->spriteCanvas->deleteCurrentFrame();
 }
 
-void MainWindow::duplicateCurrentFrame() {
+/**
+ * @brief Duplicates the current frame.
+ */
+void MainWindow::duplicateCurrentFrame()
+{
     ui->spriteCanvas->duplicateCurrentFrame();
 }
 
-void MainWindow::onFrameAdded(int frameIndex) {
-    // Create a thumbnail for the new frame
-    FrameThumbnail* thumbnail = new FrameThumbnail();
+/**
+ * @brief Adds a thumbnail widget when a frame is added.
+ * @param frameIndex Index of the new frame.
+ */
+void MainWindow::onFrameAdded(int frameIndex)
+{
+    FrameThumbnail *thumbnail = new FrameThumbnail();
     thumbnail->setImage(ui->spriteCanvas->getFrameImage(frameIndex));
-
-    // Set frame index as property
     thumbnail->setProperty("frameIndex", frameIndex);
 
-    // Connect thumbnail click
     connect(thumbnail, &FrameThumbnail::clicked, this, &MainWindow::onFrameSelected);
 
-    // Add to list and layout before the stretch
     frameThumbnails.append(thumbnail);
     framesLayout->addWidget(thumbnail);
 
-    // Update selection state
     updateFrameThumbnails();
 }
 
-void MainWindow::onFrameRemoved(int frameIndex) {
-    // Find and remove the thumbnail for this frame
-    for (int i = 0; i < frameThumbnails.size(); i++) {
+/**
+ * @brief Removes the thumbnail for the deleted frame.
+ * @param frameIndex Index of the removed frame.
+ */
+void MainWindow::onFrameRemoved(int frameIndex)
+{
+    for (int i = 0; i < frameThumbnails.size(); ++i) {
         if (frameThumbnails[i]->property("frameIndex").toInt() == frameIndex) {
-            // Remove from layout and delete
-            FrameThumbnail* thumbnail = frameThumbnails.takeAt(i);
+            FrameThumbnail *thumbnail = frameThumbnails.takeAt(i);
             framesLayout->removeWidget(thumbnail);
             delete thumbnail;
             break;
         }
     }
 
-    // Update the frame indices for remaining thumbnails
-    for (int i = 0; i < frameThumbnails.size(); i++) {
+    for (int i = 0; i < frameThumbnails.size(); ++i) {
         int oldIndex = frameThumbnails[i]->property("frameIndex").toInt();
         if (oldIndex > frameIndex) {
             frameThumbnails[i]->setProperty("frameIndex", oldIndex - 1);
         }
     }
 
-    // Update selection state
     updateFrameThumbnails();
 }
 
-void MainWindow::onFrameSelected() {
-    // Get the clicked thumbnail
-    FrameThumbnail* thumbnail = qobject_cast<FrameThumbnail*>(sender());
+/**
+ * @brief Selects a frame when its thumbnail is clicked.
+ */
+void MainWindow::onFrameSelected()
+{
+    FrameThumbnail *thumbnail = qobject_cast<FrameThumbnail *>(sender());
     if (thumbnail) {
         int frameIndex = thumbnail->property("frameIndex").toInt();
         ui->spriteCanvas->setCurrentFrame(frameIndex);
     }
 }
 
-void MainWindow::updateFrameThumbnails() {
+/**
+ * @brief Updates all thumbnails to reflect current frame and image.
+ */
+void MainWindow::updateFrameThumbnails()
+{
     int currentFrameIndex = ui->spriteCanvas->getCurrentFrameIndex();
 
-    // Update all thumbnails
-    for (FrameThumbnail* thumbnail : frameThumbnails) {
+    for (FrameThumbnail *thumbnail : frameThumbnails) {
         int frameIndex = thumbnail->property("frameIndex").toInt();
-
-        // Update image
         thumbnail->setImage(ui->spriteCanvas->getFrameImage(frameIndex));
-
-        // Update selection state
         thumbnail->setSelected(frameIndex == currentFrameIndex);
     }
 }
 
-void MainWindow::togglePlayPause() {
+/**
+ * @brief Toggles the animation between play and pause.
+ */
+void MainWindow::togglePlayPause()
+{
     animationController->togglePlayPause();
     updatePlayButtonState();
 }
 
-void MainWindow::updatePlayButtonState() {
+/**
+ * @brief Updates the play/pause button icon based on current state.
+ */
+void MainWindow::updatePlayButtonState()
+{
     if (animationController->isPlaying()) {
         playPauseButton->setText("⏸");
         playPauseButton->setToolTip("Pause Animation");
@@ -258,27 +318,42 @@ void MainWindow::updatePlayButtonState() {
     }
 }
 
+/**
+ * @brief Updates FPS and label when slider is changed.
+ * @param value New FPS value.
+ */
 void MainWindow::onFpsSliderChanged(int value)
 {
     animationController->setFps(value);
     updateFpsLabel();
 }
 
+/**
+ * @brief Updates the FPS label to match current controller FPS.
+ */
 void MainWindow::updateFpsLabel()
 {
     int fps = animationController->getFps();
     ui->fpsValueLabel->setText(QString::number(fps));
 }
 
-void MainWindow::onColorChanged(const QColor &color) {
-    // Update color button background
-    QString styleSheet = QString("QPushButton { background-color: %1; border-radius: 12px; }").arg(color.name());
+/**
+ * @brief Updates the color picker button’s appearance.
+ * @param color Selected drawing color.
+ */
+void MainWindow::onColorChanged(const QColor &color)
+{
+    QString styleSheet = QString("QPushButton { background-color: %1; border-radius: 12px; }")
+    .arg(color.name());
     ui->colorPushButton->setStyleSheet(styleSheet);
 }
 
+/**
+ * @brief Opens a dialog to resize the sprite canvas.
+ */
 void MainWindow::on_resizeCanvasButton_clicked()
 {
-    const int maxSize = 32;  // You can increase this if needed
+    const int maxSize = 32;
 
     bool ok1, ok2;
     int width = QInputDialog::getInt(this, "Canvas Width", "Enter new width (max 32):", 16, 1, maxSize, 1, &ok1);
@@ -288,4 +363,3 @@ void MainWindow::on_resizeCanvasButton_clicked()
         ui->spriteCanvas->resizeCanvas(width, height);
     }
 }
-
