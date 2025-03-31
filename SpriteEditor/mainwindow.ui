@@ -159,7 +159,7 @@ QToolButton:checked {
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/pen/pen-57.png</normaloff>:/pen/pen-57.png</iconset>
+          <normaloff>:/icons/penIcon.png</normaloff>:/icons/penIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -256,7 +256,7 @@ QToolButton:checked {
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/eraser/eraser.png</normaloff>:/eraser/eraser.png</iconset>
+          <normaloff>:/icons/eraserIcon.png</normaloff>:/icons/eraserIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -299,7 +299,7 @@ Dropper</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/color picker/color_picker4-512.png</normaloff>:/color picker/color_picker4-512.png</iconset>
+          <normaloff>:/icons/colorDropperIcon.png</normaloff>:/icons/colorDropperIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -337,7 +337,7 @@ QPushButton:hover {
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
-          <normaloff>:/color wheel/colorwheel.png</normaloff>:/color wheel/colorwheel.png</iconset>
+          <normaloff>:/icons/colorWheelIcon.png</normaloff>:/icons/colorWheelIcon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -583,7 +583,7 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
            <x>0</x>
            <y>0</y>
            <width>118</width>
-           <height>545</height>
+           <height>560</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -799,7 +799,7 @@ QSlider::sub-page:horizontal {
      <x>0</x>
      <y>0</y>
      <width>920</width>
-     <height>37</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
